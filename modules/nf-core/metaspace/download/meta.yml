@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "metaspace_download"
+description: A module to download dataset results from the METASPACE platform and save them as CSV files. It supports filtering by database and version, and handles multiple database versions by combining results into a single file.
+keywords:
+  - metaspace
+  - metabolite annotation
+  - data-download
+  - csv
+  - metabolomics
+tools:
+  - metaspace:
+      description: METASPACE is a platform for metabolite annotation of imaging mass spectrometry data.
+      homepage: https://metaspace2020.eu/
+      documentation: https://metaspace2020.readthedocs.io/en/latest/index.html
+      tool_dev_url: https://github.com/metaspace2020/metaspace
+      doi: 10.1038/nmeth.4072
+      licence: ["MIT License"]
+      identifier: biotools:metaspace
+
+input:
+  - - dataset_info:
+        type: list
+        description: |
+          List containing following information to download from METASPACE.
+          Each item in the list should be a Groovy Map with the following keys:
+          - dataset_id: The ID of the dataset to download from METASPACE (e.g., '2022-08-05_17h28m56s').
+          - database: The name of the database to filter (e.g., 'KEGG'). If not provided, all databases are included.
+          - version: The version of the database to filter (e.g., '2023'). If not provided, all versions are included.
+          dataset_id:
+            type: string
+            optional: false
+          database:
+            type: string
+            optional: true
+          version:
+            type: string
+            optional: true
+    - script_file:
+        type: file
+        description: The Python script (metaspace_download.py) used to download dataset results from METASPACE.
+        pattern: "*.py"
+
+output:
+  - results:
+      - "*.csv":
+          type: file
+          description: CSV file containing the downloaded dataset results. The filename format is '{dataset_id}_{database}_{version}.csv' or '{dataset_id}_{database}_all_versions.csv' if multiple versions are combined.
+          pattern: "*.csv"
+          ontologies:
+            - edam: "http://edamontology.org/format_3752" # CSV format
+  - log:
+      - stdout:
+          type: string
+          description: The standard output (stdout) of the script, containing log messages such as '✅ Results saved to ...' or '❌ Dataset not found ...'.
+
+authors:
+  - "@Dewey-Wang"
+maintainers:
+  - "@Dewey-Wang"
