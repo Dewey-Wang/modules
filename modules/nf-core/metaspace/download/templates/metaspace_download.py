@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+
 import pandas as pd
 from metaspace import SMInstance
 
@@ -112,13 +115,34 @@ def download_dataset_results(dataset_id, database=None, version=None):
     return results_df
 
 
-dataset_id = "${dataset_id}"  # 確保這是一個可迭代的結構，如 list
+dataset_id = "${dataset_id}"
 
-if dataset_id == "null":
+if dataset_id == "null" or dataset_id is None:
     raise ValueError("Error: input csv or datasets contains an entry with missing dataset_id.")
 
-    # 如果 dataset_id 有效，繼續處理
 database = "${database}" if "${database}" != "null" else None
 version = "${version}" if "${version}" != "null" else None
 
 result = download_dataset_results(dataset_id, database, version)
+
+
+def get_version(module):
+    try:
+        return module.__version__
+    except AttributeError:
+        return "N/A"
+
+
+process_name = "${process_name}"
+
+with open("versions.yml", "w") as f:
+    f.write(f"""\
+{process_name}:
+    python: {sys.version.split()[0]}
+    pandas: {get_version(pd)}
+    metaspace: {get_version(SMInstance)}
+    sys: {sys.version.split()[0]}
+    os: {get_version(os)}
+""")
+
+print("versions.yml file has been generated.")

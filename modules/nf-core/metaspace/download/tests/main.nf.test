@@ -18,7 +18,6 @@ nextflow_process {
                     ['2022-08-05_17h28m56s', 'KEGG', null],
                     ['2022-08-05_17h28m56s', null, null]
                 ])
-                params.output = 'test_results' // Override default output directory for testing
                 """
             }
         }
@@ -26,7 +25,9 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert file("${process.out.results[0]}").exists() } // Check if a CSV file was generated
+                { assert process.out.results.size() == 2 },
+                { assert process.out.log.size() == 2 },
+                { assert process.out.versions.size() == 2 },
             )
         }
     }
@@ -40,11 +41,9 @@ nextflow_process {
                     ['2022-08-05_17h28m56s', null, null],
                     [null, 'KEGG', null] // Missing dataset_id
                 ])
-                params.output = 'test_results' // Override default output directory for testing
                 """
             }
         }
-
         then {
             assertAll(
                 { assert process.failed } // Process may succeed unless metaspace_download.py fails on null
