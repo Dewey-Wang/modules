@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "metaspace_download"
-description: A module to download dataset results from the METASPACE platform and save them as CSV files. It supports filtering by database and version, and handles multiple database versions by combining results into a single file.
+description: A module to download dataset results from the METASPACE platform and save them as CSV files, using a containerized Python script. Inputs are provided via a CSV file or a list of datasets, with results saved to a specified output directory.
 keywords:
   - metaspace
   - metabolite annotation
@@ -18,40 +18,51 @@ tools:
       identifier: biotools:metaspace
 
 input:
-  - - dataset_info:
+  - - container:
+        type: string
+        description: |
+          Docker container image used to run the download process (default: 'bwadie/metaspace_converter').
+        optional: false
+    - output:
+        type: string
+        description: |
+          Directory where the downloaded CSV results will be saved (default: 'results').
+        optional: false
+    - input_csv:
+        type: string
+        description: |
+          Path to a CSV file containing dataset details (default: false).
+          If provided, must contain columns: dataset_id, database, version.
+          If no database or version is specified, just leave it blank.
+          Example:
+            dataset_id,database,version
+            2022-08-05_17h28m56s,KEGG,
+            2022-08-05_17h28m56s,GNPS,
+            2023-01-01_12h34m56s,,
+          Either this or datasets must be specified.
+        optional: true
+    - datasets:
         type: list
         description: |
-          List containing following information to download from METASPACE.
-          Each item in the list should be a Groovy Map with the following keys:
-          - dataset_id: The ID of the dataset to download from METASPACE (e.g., '2022-08-05_17h28m56s').
-          - database: The name of the database to filter (e.g., 'KEGG'). If not provided, all databases are included.
-          - version: The version of the database to filter (e.g., '2023'). If not provided, all versions are included.
-          dataset_id:
-            type: string
-            optional: false
-          database:
-            type: string
-            optional: true
-          version:
-            type: string
-            optional: true
-    - script_file:
-        type: file
-        description: The Python script (metaspace_download.py) used to download dataset results from METASPACE.
-        pattern: "*.py"
+          List of dataset details (default: false).
+          Each item is a list of [dataset_id, database (optional), version (optional)].
+          Either this or input_csv must be specified.
+        optional: true
 
 output:
   - results:
       - "*.csv":
           type: file
-          description: CSV file containing the downloaded dataset results. The filename format is '{dataset_id}_{database}_{version}.csv' or '{dataset_id}_{database}_all_versions.csv' if multiple versions are combined.
+          description: |
+            CSV file containing the downloaded dataset results, saved to the directory specified by the output parameter.
+            Filename format is '{dataset_id}_*.csv'.
           pattern: "*.csv"
           ontologies:
             - edam: "http://edamontology.org/format_3752" # CSV format
   - log:
       - stdout:
           type: string
-          description: The standard output (stdout) of the script, containing log messages such as '✅ Results saved to ...' or '❌ Dataset not found ...'.
+          description: The standard output (stdout) of the script, containing log messages.
 
 authors:
   - "@Dewey-Wang"
