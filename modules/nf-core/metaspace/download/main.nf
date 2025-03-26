@@ -1,42 +1,49 @@
+#!/usr/bin/env nextflow
+
+nextflow.enable.dsl=2
+
+params.container = 'bwadie/metaspace_converter'
+params.output = 'results'
+params.input_csv = false
+params.datasets = false
+
 process METASPACE_DOWNLOAD {
     label 'process_low'
-
-    publishDir 'results', mode: 'copy'
-    container 'bwadie/metaspace_converter'
+    publishDir "${params.output}", mode: 'copy', overwrite: true
+    container "${params.container}"
 
     input:
     tuple val(dataset_id), val(database), val(version)
-    path script_file
 
     output:
-    path "${dataset_id}_*.csv", optional: true, emit: results  // 設為可選
-    stdout emit: log  // 將 dataset_id 與 stdout 一起輸出
+    path "${dataset_id}_*.csv", optional: true, emit: results
+    stdout emit: log
 
     script:
-    """
-    python3 $script_file \\
-        --dataset_id "$dataset_id" \\
-        --database "${database ?: 'None'}" \\
-        --version "${version ?: 'None'}"
-    """
+    template 'metaspace_download.py'
 }
 
 workflow {
-    script_file = file("${projectDir}/metaspace_download.py")
+    if (!params.input_csv && !params.datasets) {
+        error "Must provide either 'input_csv' or 'datasets' parameter."
+    }
 
-    if (params.datasets_file) {
-        datasets = Channel.fromPath(params.datasets_file)
+    if (params.input_csv) {
+        input_csv = file("${params.input_csv}", checkIfExists: true)
+        datasets = Channel.fromPath(input_csv)
             .splitCsv(header: true, strip: true)
             .map { row ->
-                // 將空值轉換為 null
                 def database = row.database?.trim() ?: null
                 def version = row.version?.trim() ?: null
                 [row.dataset_id, database, version]
             }
     } else {
-        datasets = Channel.fromList(params.datasets)
+        datasets = Channel.fromList("${params.datasets}")
     }
 
-    METASPACE_DOWNLOAD(datasets, script_file)
+    METASPACE_DOWNLOAD(datasets)
     METASPACE_DOWNLOAD.out.log.view { "${it.split('\n').last().trim()}" }
+    METASPACE_DOWNLOAD.out.results.last().subscribe {
+        println "All the output saved in: ${workflow.launchDir}/${params.output}"
+    }
 }

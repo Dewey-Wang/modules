@@ -1,4 +1,4 @@
-import argparse
+#!/usr/bin/env python3
 
 import pandas as pd
 from metaspace import SMInstance
@@ -85,7 +85,7 @@ def download_dataset_results(dataset_id, database=None, version=None):
 
     # Extract the content between two '+' symbols in the `ion` column and prepend a '+'
     if "ion" in results_df.columns:
-        results_df["Adduct"] = results_df["ion"].str.extract(r"(\+[A-Za-z0-9]+)")
+        results_df["Adduct"] = results_df["ion"].str.extract(r"(\\+[A-Za-z0-9]+)")
     # Rename the `intensity` column to `maxIntensity`
     if "intensity" in results_df.columns:
         results_df.rename(columns={"intensity": "maxIntensity"}, inplace=True)
@@ -112,16 +112,6 @@ def download_dataset_results(dataset_id, database=None, version=None):
     return results_df
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Download dataset results from METASPACE.")
-    parser.add_argument("--dataset_id", required=True, help="Dataset ID from METASPACE")
-    parser.add_argument("--database", required=False, default=None, help="Database name")
-    parser.add_argument("--version", required=False, default=None, help="Database version")
-
-    args = parser.parse_args()
-
-    # 修正 None 的問題
-    database = None if args.database == "None" else args.database
-    version = None if args.version == "None" else args.version
-
-    result = download_dataset_results(args.dataset_id, database, version)
+database = "${database}" if "${database}" != "null" else None
+version = "${version}" if "${version}" != "null" else None
+result = download_dataset_results("${dataset_id}", database, version)
