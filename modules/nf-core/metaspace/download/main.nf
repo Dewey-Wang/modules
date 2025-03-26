@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl=2
 
-params.container = 'bwadie/metaspace_converter'
+params.container = 'docker.io/bwadie/metaspace_converter'
 params.output = 'results'
 params.input_csv = false
 params.datasets = false
@@ -33,9 +33,10 @@ workflow {
         datasets = Channel.fromPath(input_csv)
             .splitCsv(header: true, strip: true)
             .map { row ->
+                def dataset_id = row.dataset_id?.trim() ?: null
                 def database = row.database?.trim() ?: null
                 def version = row.version?.trim() ?: null
-                [row.dataset_id, database, version]
+                [dataset_id, database, version]
             }
     } else {
         datasets = Channel.fromList("${params.datasets}")
