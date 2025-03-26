@@ -14,7 +14,5 @@ process METASPACE_DOWNLOAD {
     task.ext.when == null || task.ext.when
 
     script:
-    def prefix = task.ext.prefix ?: "${dataset_id}"
-    def process_name = task.process
     template 'metaspace_download.py'
 }
