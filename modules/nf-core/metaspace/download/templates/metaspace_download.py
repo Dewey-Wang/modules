@@ -2,6 +2,7 @@
 
 import platform
 
+import metaspace
 import pandas as pd
 from metaspace import SMInstance
 
@@ -151,7 +152,7 @@ versions = {
     "${task.process}": {
         "python": platform.python_version(),
         "pandas": pd.__version__,
-        "metaspace": SMInstance.__version__,
+        "metaspace": metaspace.__version__,
     }
 }
 
