@@ -115,7 +115,7 @@ def download_dataset_results(dataset_id, database=None, version=None):
 dataset_id = "${dataset_id}"  # 確保這是一個可迭代的結構，如 list
 
 if dataset_id == "null":
-    raise ValueError("Error: 'params.datasets' contains an entry with missing dataset_id.")
+    raise ValueError("Error: input csv or datasets contains an entry with missing dataset_id.")
 
     # 如果 dataset_id 有效，繼續處理
 database = "${database}" if "${database}" != "null" else None
