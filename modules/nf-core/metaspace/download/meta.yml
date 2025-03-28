@@ -9,16 +9,12 @@ keywords:
   - data-download
   - csv
 tools:
-  - metaspace:
-      description: METASPACE is a platform for metabolite annotation of imaging mass
-        spectrometry data.
-      homepage: https://metaspace2020.eu/
-      documentation: https://metaspace2020.readthedocs.io/en/latest/index.html
-      tool_dev_url: https://github.com/metaspace2020/metaspace
-      doi: 10.1038/nmeth.4072
-      licence: ["MIT License"]
-      identifier: biotools:metaspace
-
+  - metaspace2020:
+      description: Python package providing programmatic access to the METASPACE platform
+      homepage: https://metaspace2020.readthedocs.io
+      documentation: https://metaspace2020.readthedocs.io
+      tool_dev_url: https://github.com/metaspace2020/metaspace/tree/master/metaspace/python-client
+      licence: ["Apache-2.0 license"]
 input:
   - - dataset_id:
         type: string

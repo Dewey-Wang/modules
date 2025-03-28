@@ -86,9 +86,9 @@ def download_dataset_results(dataset_id, database=None, version=None):
         print(f"❌ {dataset_id} has no annotation data in database: {database}.")
         return None
 
-    # Extract the content between two '+' symbols in the `ion` column and prepend a '+'
+    # Extract the content of '+adduct' and '-adduct''
     if "ion" in results_df.columns:
-        results_df["Adduct"] = results_df["ion"].str.extract(r"(\\+[A-Za-z0-9]+)")
+        results_df["Adduct"] = results_df["ion"].str.extract(r"([+-][A-Za-z0-9]+)")
     # Rename the `intensity` column to `maxIntensity`
     if "intensity" in results_df.columns:
         results_df.rename(columns={"intensity": "maxIntensity"}, inplace=True)
